@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: badminton-ecommerce
+
+  threads:
+    virtual:
+      enabled: true
+
+  # --- Cấu hình Mail phải nằm ở đây ---
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAIL_USERNAME:2765bbb26b1034}
+    password: ${MAIL_PASSWORD:643155ebc2bab3}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/badminton_ecommerce}
+    username: ${DB_USERNAME:vnb_admin}
+    password: ${DB_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+      pool-name: BadmintonHikariCP
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+# --- Các cấu hình ngoài luồng Spring ---
+logging:
+  level:
+    root: INFO
+    com.badminton.ecommerce: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:9a67471a7f83413bc1230b2d422839282b1c411234567890abcdef1234567890}
+  expiration: ${JWT_EXPIRATION:86400000} # 1 ngày
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 ngày
+
+crawler:
+  api-key: ${CRAWLER_API_KEY:super-secret-crawler-key-123}

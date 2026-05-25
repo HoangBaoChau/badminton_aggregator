@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+dist
+playwright-report
+test-results
+
+# Sensitive data & Debug files
+cookies.json
+*.png
+*.html
+debug-*
+post-debug.html
