@@ -5,6 +5,7 @@ import com.badminton.ecommerce.modules.deal.dto.request.CreateDealSourceRequest;
 import com.badminton.ecommerce.modules.deal.dto.request.UpdateDealSourceRequest;
 import com.badminton.ecommerce.modules.deal.dto.response.DealSourceResponse;
 import com.badminton.ecommerce.modules.deal.service.DealSourceService;
+import com.badminton.ecommerce.modules.deal.service.CrawlerEngineService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/sources")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'VIP') or hasAnyAuthority('ROLE_ADMIN', 'ADMIN', 'ROLE_VIP', 'VIP')")
 public class AdminDealSourceController {
 
     private final DealSourceService dealSourceService;
+    private final CrawlerEngineService crawlerEngineService;
 
     @GetMapping
     public ApiResponse<Page<DealSourceResponse>> getAllSources(Pageable pageable) {
@@ -49,5 +51,14 @@ public class AdminDealSourceController {
     public ApiResponse<Void> deleteSource(@PathVariable UUID id) {
         dealSourceService.deleteSource(id);
         return ApiResponse.success(null);
+    }
+
+    @PostMapping("/{id}/crawl")
+    public ApiResponse<String> triggerCrawl(
+            @PathVariable UUID id,
+            @RequestParam(required = false) Integer maxScrolls) {
+        
+        crawlerEngineService.triggerManualCrawl(id, maxScrolls);
+        return ApiResponse.success("Tiến trình Crawler đã được khởi chạy ngầm.");
     }
 }

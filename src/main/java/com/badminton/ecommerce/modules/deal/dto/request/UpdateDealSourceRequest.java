@@ -7,5 +7,6 @@ public class UpdateDealSourceRequest {
     private String name;
     private String url;
     private Integer crawlFrequencyMinutes;
+    private Integer maxScrolls;
     private Boolean active;
 }

@@ -39,4 +39,8 @@ public class DealSource extends BaseEntity {
 
     @Column(name = "last_crawled_at")
     private Instant lastCrawledAt;
+
+    @Column(name = "max_scrolls", nullable = false)
+    @Builder.Default
+    private Integer maxScrolls = 5;
 }

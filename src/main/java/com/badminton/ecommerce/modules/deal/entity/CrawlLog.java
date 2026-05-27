@@ -44,6 +44,9 @@ public class CrawlLog {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
+    @Column(name = "crawl_details", columnDefinition = "TEXT")
+    private String crawlDetails;
+
     @Column(name = "duration_ms")
     private Integer durationMs;
 

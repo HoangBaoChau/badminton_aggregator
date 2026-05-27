@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -22,7 +23,7 @@ public class DealController {
 
     /**
      * API dành cho Frontend để hiển thị danh sách (Feed)
-     * GET /api/v1/deals?page=0&size=20&keyword=yonex
+     * GET /api/v1/deals?page=0&size=20&keyword=yonex&condition=new&location=HN&minPrice=100000&maxPrice=5000000&timeRange=24h
      */
     @GetMapping
     public ResponseEntity<ApiResponse<Page<DealResponse>>> getDeals(
@@ -31,9 +32,16 @@ public class DealController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "active") String status,
             @RequestParam(required = false) UUID brandId,
-            @RequestParam(required = false) UUID categoryId) {
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) String condition,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String transactionMethod,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String timeRange) {
 
-        Page<DealResponse> deals = dealService.getDeals(page, size, keyword, status, brandId, categoryId);
+        Page<DealResponse> deals = dealService.getDeals(page, size, keyword, status, brandId, categoryId,
+                condition, location, transactionMethod, minPrice, maxPrice, timeRange);
         return ResponseEntity.ok(ApiResponse.success(deals));
     }
 

@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/logs")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'VIP') or hasAnyAuthority('ROLE_ADMIN', 'ADMIN', 'ROLE_VIP', 'VIP')")
 public class AdminCrawlLogController {
 
     private final CrawlLogService crawlLogService;

@@ -43,6 +43,7 @@ public class DealSourceServiceImpl implements DealSourceService {
                 .type(request.getType())
                 .url(request.getUrl())
                 .crawlFrequencyMinutes(request.getCrawlFrequencyMinutes())
+                .maxScrolls(request.getMaxScrolls() != null ? request.getMaxScrolls() : 5)
                 .active(true)
                 .build();
         
@@ -58,6 +59,7 @@ public class DealSourceServiceImpl implements DealSourceService {
         if (request.getName() != null) dealSource.setName(request.getName());
         if (request.getUrl() != null) dealSource.setUrl(request.getUrl());
         if (request.getCrawlFrequencyMinutes() != null) dealSource.setCrawlFrequencyMinutes(request.getCrawlFrequencyMinutes());
+        if (request.getMaxScrolls() != null) dealSource.setMaxScrolls(request.getMaxScrolls());
         if (request.getActive() != null) dealSource.setActive(request.getActive());
 
         dealSource = dealSourceRepository.save(dealSource);

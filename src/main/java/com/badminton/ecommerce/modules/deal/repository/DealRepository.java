@@ -33,4 +33,12 @@ public interface DealRepository extends JpaRepository<Deal, UUID>, JpaSpecificat
             "@@ plainto_tsquery('simple', :keyword)",
             nativeQuery = true)
     Page<Deal> searchDealsFts(@Param("keyword") String keyword, @Param("status") String status, Pageable pageable);
+
+    long countBySourceIdAndCreatedAtBetween(UUID sourceId, java.time.Instant start, java.time.Instant end);
+
+    long countBySourceIdAndUpdatedAtBetween(UUID sourceId, java.time.Instant start, java.time.Instant end);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Deal d SET d.updatedAt = :now WHERE d.id = :id")
+    void touchUpdatedAt(@Param("id") UUID id, @Param("now") java.time.Instant now);
 }

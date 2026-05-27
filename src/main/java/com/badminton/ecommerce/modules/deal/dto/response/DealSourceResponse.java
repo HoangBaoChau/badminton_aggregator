@@ -18,6 +18,7 @@ public class DealSourceResponse {
     private String type; // FACEBOOK_GROUP, FORUM, vv.
     private String url;
     private Integer crawlFrequencyMinutes;
+    private Integer maxScrolls;
     private boolean active;
     private Instant lastCrawledAt;
     private Instant createdAt;

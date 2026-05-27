@@ -20,6 +20,7 @@ public class CrawlLogResponse {
     private Integer postsNew;
     private Integer postsDuplicate;
     private String errorMessage;
-    private Long durationMs;
+    private String crawlDetails;
+    private Integer durationMs;
     private Instant createdAt;
 }

@@ -17,4 +17,6 @@ public class CreateDealSourceRequest {
 
     @NotNull(message = "Tần suất cào (phút) không được để trống")
     private Integer crawlFrequencyMinutes;
+
+    private Integer maxScrolls = 5;
 }
