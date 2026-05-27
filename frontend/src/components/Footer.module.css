@@ -1,0 +1,65 @@
+.footer {
+  margin-top: 4rem;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding-top: 3rem;
+}
+
+.footerContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .footerContainer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.brand h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.brand p {
+  color: var(--text-secondary);
+  max-width: 300px;
+}
+
+.links {
+  display: flex;
+  gap: 3rem;
+}
+
+.linkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.linkGroup h4 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.linkGroup a {
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.linkGroup a:hover {
+  color: var(--text-primary);
+}
+
+.copyright {
+  text-align: center;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}

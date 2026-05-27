@@ -1,0 +1,235 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.filtersSection {
+  background-color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .filtersSection {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  max-width: 260px;
+}
+
+.filterGroup label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.select {
+  background-color: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.logsTableWrapper {
+  background-color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.logsTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.logsTable th {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.logsTable td {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.logsTable tr:last-child td {
+  border-bottom: none;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.statusSuccess {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.statusFailed {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.statsText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.statNew {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.statDuplicate {
+  color: #64748b;
+}
+
+.errorCell {
+  color: #ef4444;
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+
+.errorExpandedRow td {
+  background-color: rgba(239, 68, 68, 0.02);
+  border-top: none;
+  padding: 12px 20px 20px 20px;
+}
+
+.errorContent {
+  background-color: rgba(239, 68, 68, 0.05);
+  border: 1px dashed rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  color: #f87171;
+  font-family: monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pageInfo {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pageNav {
+  display: flex;
+  gap: 8px;
+}
+
+.pageBtn {
+  background-color: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.loadingContainer, .emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #0f172a;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spinner {
+  color: #3b82f6;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.emptyText {
+  color: #64748b;
+  font-size: 0.9rem;
+}

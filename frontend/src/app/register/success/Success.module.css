@@ -1,0 +1,99 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon {
+  color: var(--success-color);
+  margin-bottom: 1.5rem;
+}
+
+.card h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.message {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.emailText {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.subtext {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .primaryBtn, .secondaryBtn {
+    min-width: 180px;
+  }
+}
+
+.primaryBtn {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: center;
+}
+
+.primaryBtn:hover {
+  background-color: var(--accent-hover);
+}
+
+.secondaryBtn {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+}
+
+.secondaryBtn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: var(--text-secondary);
+}
+
+[data-theme='dark'] .secondaryBtn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
