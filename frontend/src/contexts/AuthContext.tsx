@@ -32,6 +32,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (savedToken && savedEmail && savedFullName && savedRole) {
       setUser({ email: savedEmail, fullName: savedFullName, role: savedRole });
     }
+
+    const handleSessionExpired = () => {
+      setUser(null);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('email');
+      localStorage.removeItem('fullName');
+      localStorage.removeItem('role');
+    };
+
+    window.addEventListener('session_expired', handleSessionExpired);
+    return () => {
+      window.removeEventListener('session_expired', handleSessionExpired);
+    };
   }, []);
 
   const login = (token: string, email: string, fullName: string, role: string) => {

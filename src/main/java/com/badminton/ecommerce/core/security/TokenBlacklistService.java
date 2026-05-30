@@ -1,68 +1,57 @@
 package com.badminton.ecommerce.core.security;
 
+import com.badminton.ecommerce.core.security.entity.BlacklistedToken;
+import com.badminton.ecommerce.core.security.repository.BlacklistedTokenRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class TokenBlacklistService {
 
-    // Cache to hold blacklisted tokens. Key is the token, value is the token's expiration time.
-    private final Map<String, Instant> blacklist = new ConcurrentHashMap<>();
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
 
-    /**
-     * Adds a token to the blacklist with its expiration time.
-     *
-     * @param token  The JWT token
-     * @param expiry The token's expiration instant
-     */
+    @Transactional
     public void blacklistToken(String token, Instant expiry) {
         if (expiry.isAfter(Instant.now())) {
-            blacklist.put(token, expiry);
+            BlacklistedToken blacklistedToken = BlacklistedToken.builder()
+                    .token(token)
+                    .expiryDate(expiry)
+                    .build();
+            blacklistedTokenRepository.save(blacklistedToken);
             log.info("Token added to blacklist. Expiry: {}", expiry);
         } else {
             log.debug("Token is already expired, no need to blacklist.");
         }
     }
 
-    /**
-     * Checks if a token is blacklisted.
-     *
-     * @param token The JWT token
-     * @return true if the token is blacklisted and not yet expired, false otherwise
-     */
     public boolean isBlacklisted(String token) {
-        Instant expiry = blacklist.get(token);
-        if (expiry == null) {
-            return false;
-        }
-        if (expiry.isBefore(Instant.now())) {
-            blacklist.remove(token); // Lazy eviction
-            return false;
-        }
-        return true;
+        return blacklistedTokenRepository.findById(token)
+                .map(blacklisted -> {
+                    if (blacklisted.getExpiryDate().isBefore(Instant.now())) {
+                        // Let the cleanup job handle deletion to avoid transaction issues here
+                        return false;
+                    }
+                    return true;
+                })
+                .orElse(false);
     }
 
-    /**
-     * Scheduled task to evict expired tokens from the blacklist.
-     * Runs every 30 minutes (1800000 milliseconds).
-     */
-    @Scheduled(fixedRate = 1800000)
+    @Scheduled(fixedRate = 1800000) // Every 30 minutes
+    @Transactional
     public void cleanExpiredTokens() {
-        log.debug("Cleaning expired tokens from blacklist...");
-        Instant now = Instant.now();
-        int initialSize = blacklist.size();
-        
-        blacklist.entrySet().removeIf(entry -> entry.getValue().isBefore(now));
-        
-        int removedCount = initialSize - blacklist.size();
-        if (removedCount > 0) {
-            log.info("Removed {} expired tokens from blacklist.", removedCount);
+        log.debug("Cleaning expired tokens from blacklist DB...");
+        try {
+            blacklistedTokenRepository.deleteByExpiryDateBefore(Instant.now());
+            log.debug("Expired tokens cleaned.");
+        } catch (Exception e) {
+            log.error("Error cleaning expired tokens: ", e);
         }
     }
 }

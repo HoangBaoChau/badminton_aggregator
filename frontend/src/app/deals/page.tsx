@@ -4,9 +4,11 @@ import React, { useState } from 'react';
 import useSWR from 'swr';
 import { fetcher, apiClient } from '@/services/api';
 import DealCard, { Deal } from '@/components/DealCard';
+import { DealCardSkeleton } from '@/components/Skeleton';
 import FilterBar from '@/components/FilterBar';
+import DealMap from '@/components/DealMap';
 import styles from './Deals.module.css';
-import { RefreshCw, Sparkles, ChevronDown } from 'lucide-react';
+import { Sparkles, Filter, Map as MapIcon, List } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -20,6 +22,32 @@ export default function DealsPage() {
     minPrice: 0, maxPrice: 10000000 
   });
   const [sortOrder, setSortOrder] = useState('newest');
+
+  const [aiQuery, setAiQuery] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiFilters, setAiFilters] = useState<any>(null);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isMapView, setIsMapView] = useState(false);
+
+  const handleAiSearch = async () => {
+    if (!aiQuery.trim()) return;
+    setIsAiLoading(true);
+    try {
+      const extracted = await apiClient.post('/ai/extract-filters', { query: aiQuery });
+      if (extracted) {
+        setAiFilters(extracted);
+      }
+    } catch (err: any) {
+      if (err.response?.status === 429) {
+        alert("Bạn tra cứu quá nhanh! Vui lòng đợi 1 phút rồi thử lại.");
+      } else {
+        alert("Có lỗi khi phân tích bằng AI. Vui lòng thử lại sau.");
+      }
+    } finally {
+      setIsAiLoading(false);
+      setAiQuery('');
+    }
+  };
 
   // Xây dựng URL có query params
   const queryParams = new URLSearchParams({
@@ -79,7 +107,12 @@ export default function DealsPage() {
     <div className={styles.pageContainer}>
       <div className={styles.mainLayout}>
         <aside className={styles.sidebar}>
-          <FilterBar onSearch={handleSearch} />
+          <FilterBar 
+            onSearch={handleSearch} 
+            aiFilters={aiFilters}
+            isOpenMobile={isMobileFilterOpen}
+            onCloseMobile={() => setIsMobileFilterOpen(false)}
+          />
         </aside>
 
         <main className={styles.content}>
@@ -89,10 +122,20 @@ export default function DealsPage() {
               <Sparkles size={20} className={styles.aiIcon} />
               <input 
                 type="text" 
-                placeholder="Hỏi AI: tìm kèo tối nay Cầu Giấy TB+..." 
+                placeholder="VD: Cần mua vợt Yonex cũ giá dưới 1 triệu ở Cầu Giấy (nhập Hãng, Tình trạng, Giá, Khu vực...)" 
                 className={styles.aiInput}
+                value={aiQuery}
+                onChange={(e) => setAiQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAiSearch()}
+                disabled={isAiLoading}
               />
-              <button className={styles.aiSearchBtn}>Tìm</button>
+              <button 
+                className={styles.aiSearchBtn}
+                onClick={handleAiSearch}
+                disabled={isAiLoading || !aiQuery.trim()}
+              >
+                {isAiLoading ? 'Đang phân tích...' : 'Tìm'}
+              </button>
             </div>
           </div>
 
@@ -103,16 +146,35 @@ export default function DealsPage() {
               <span>{isLoading ? 'Đang tính toán...' : `${totalElements} kết quả`}</span>
             </div>
 
-            <div className={styles.sortDropdown}>
-              <select 
-                value={sortOrder} 
-                onChange={(e) => setSortOrder(e.target.value)}
-                className={styles.sortSelect}
-              >
-                <option value="newest">Mới nhất</option>
-                <option value="price_asc">Giá tăng dần</option>
-                <option value="price_desc">Giá giảm dần</option>
-              </select>
+            <div className={styles.headerControls}>
+              <div className={styles.viewToggle}>
+                <button 
+                  className={`${styles.viewBtn} ${!isMapView ? styles.active : ''}`}
+                  onClick={() => setIsMapView(false)}
+                  title="Xem dạng danh sách"
+                >
+                  <List size={18} />
+                </button>
+                <button 
+                  className={`${styles.viewBtn} ${isMapView ? styles.active : ''}`}
+                  onClick={() => setIsMapView(true)}
+                  title="Xem trên bản đồ"
+                >
+                  <MapIcon size={18} />
+                </button>
+              </div>
+
+              <div className={styles.sortDropdown}>
+                <select 
+                  value={sortOrder} 
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className={styles.sortSelect}
+                >
+                  <option value="newest">Mới nhất</option>
+                  <option value="price_asc">Giá tăng dần</option>
+                  <option value="price_desc">Giá giảm dần</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -130,22 +192,27 @@ export default function DealsPage() {
             </div>
           )}
 
-          {/* Deal List (Thay vì Grid) */}
-          <div className={styles.dealList}>
-            {deals.map((deal) => (
-              <DealCard 
-                key={deal.id} 
-                deal={deal} 
-                isFavorited={favoritedIds.has(deal.id)}
-                onToggleFavorite={handleToggleFavorite}
-              />
-            ))}
-          </div>
+          {/* Render Map or List */}
+          {isMapView && !isLoading && deals.length > 0 ? (
+            <DealMap deals={deals} />
+          ) : (
+            <div className={styles.dealList}>
+              {deals.map((deal) => (
+                <DealCard 
+                  key={deal.id} 
+                  deal={deal} 
+                  isFavorited={favoritedIds.has(deal.id)}
+                  onToggleFavorite={handleToggleFavorite}
+                />
+              ))}
+            </div>
+          )}
 
           {isLoading && (
-            <div className={styles.loadingState}>
-              <RefreshCw className={`${styles.spinner} animate-spin`} size={32} />
-              <p>Đang tải deal ngon...</p>
+            <div className={styles.dealList}>
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <DealCardSkeleton key={i} />
+              ))}
             </div>
           )}
 
@@ -172,6 +239,15 @@ export default function DealsPage() {
           )}
         </main>
       </div>
+
+      {/* Floating Mobile Filter Button */}
+      <button 
+        className={styles.mobileFilterBtn}
+        onClick={() => setIsMobileFilterOpen(true)}
+      >
+        <Filter size={20} />
+        <span>Bộ lọc</span>
+      </button>
     </div>
   );
 }

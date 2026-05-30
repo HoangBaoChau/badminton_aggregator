@@ -191,7 +191,7 @@ export default function AdminLogsPage() {
                           {(log.crawlDetails || log.errorMessage) ? (
                             <button 
                               onClick={() => toggleExpandLog(log.id)}
-                              className="text-blue-400 hover:text-blue-300 text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                              className={styles.detailsBtn}
                             >
                               <span>{isExpanded ? 'Ẩn chi tiết' : 'Xem chi tiết'}</span>
                               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -206,23 +206,25 @@ export default function AdminLogsPage() {
                       {isExpanded && (
                         <tr className={styles.errorExpandedRow}>
                           <td colSpan={6}>
-                            <div className={styles.errorContent}>
+                            <div>
                               {log.errorMessage && (
-                                <div style={{ marginBottom: '12px' }}>
+                                <div className={styles.errorContent} style={{ marginBottom: '12px' }}>
                                   <strong style={{ color: '#ef4444' }}>❌ Lỗi:</strong>
                                   <pre style={{ whiteSpace: 'pre-wrap', marginTop: '4px' }}>{log.errorMessage}</pre>
                                 </div>
                               )}
                               {log.crawlDetails && (
-                                <div>
+                                <div className={styles.successContent}>
                                   <strong style={{ color: '#10b981' }}>📦 Dữ liệu đã đẩy vào DB ({JSON.parse(log.crawlDetails).length} deal):</strong>
-                                  <pre style={{ whiteSpace: 'pre-wrap', marginTop: '4px', maxHeight: '400px', overflow: 'auto', fontSize: '0.8rem', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px' }}>
+                                  <pre style={{ whiteSpace: 'pre-wrap', marginTop: '8px', maxHeight: '400px', overflow: 'auto' }}>
                                     {JSON.stringify(JSON.parse(log.crawlDetails), null, 2)}
                                   </pre>
                                 </div>
                               )}
                               {!log.errorMessage && !log.crawlDetails && (
-                                <span>Không có thông tin chi tiết.</span>
+                                <div className={styles.errorContent}>
+                                  <span>Không có thông tin chi tiết.</span>
+                                </div>
                               )}
                             </div>
                           </td>

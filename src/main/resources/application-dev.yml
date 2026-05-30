@@ -1,0 +1,35 @@
+# ============================================================
+# Profile DEV — Chỉ dùng cho môi trường phát triển local
+# File này KHÔNG nên commit lên production branch
+# ============================================================
+
+spring:
+  mail:
+    username: 2765bbb26b1034
+    password: 643155ebc2bab3
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/badminton_ecommerce
+    username: vnb_admin
+    password: "1234"
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: 9a67471a7f83413bc1230b2d422839282b1c411234567890abcdef1234567890
+  expiration: 86400000       # 1 ngày
+  refresh-expiration: 604800000  # 7 ngày
+
+crawler:
+  api-key: super-secret-crawler-key-123
+
+ai:
+  groq:
+    api-key: your-groq-api-key-here
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000,http://192.168.1.5:3000,http://192.168.1.7:3000

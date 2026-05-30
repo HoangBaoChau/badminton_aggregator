@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from './FilterBar.module.css';
-import { Filter, MapPin, Tag, Box, Clock, DollarSign, Activity, RotateCcw } from 'lucide-react';
+import { Filter, MapPin, Tag, Box, Clock, DollarSign, Activity, RotateCcw, X } from 'lucide-react';
 
 interface FilterBarProps {
-  onSearch: (filters: { 
-    keyword: string; 
-    categoryId: string; 
+  onSearch: (filters: {
+    keyword: string;
+    categoryId: string;
     brandId: string;
     location?: string;
     transactionMethod?: string;
@@ -14,11 +14,21 @@ interface FilterBarProps {
     minPrice?: number;
     maxPrice?: number;
   }) => void;
+  aiFilters?: any;
   categories?: { id: string; name: string }[];
   brands?: { id: string; name: string }[];
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export default function FilterBar({ onSearch, categories = [], brands = [] }: FilterBarProps) {
+export default function FilterBar({ 
+  onSearch, 
+  aiFilters, 
+  categories = [], 
+  brands = [],
+  isOpenMobile = false,
+  onCloseMobile
+}: FilterBarProps) {
   const [productType, setProductType] = useState('');  // keyword cho loại sản phẩm
   const [location, setLocation] = useState('');
   const [transactionMethod, setTransactionMethod] = useState('');
@@ -32,6 +42,20 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
     const parts = [productType, brand].filter(Boolean);
     return parts.join(' ');
   }, [productType, brand]);
+
+  // Cập nhật state từ AI
+  useEffect(() => {
+    if (aiFilters) {
+      if (aiFilters.productType) setProductType(aiFilters.productType);
+      if (aiFilters.location) setLocation(aiFilters.location);
+      if (aiFilters.transactionMethod) setTransactionMethod(aiFilters.transactionMethod);
+      if (aiFilters.brand) setBrand(aiFilters.brand);
+      if (aiFilters.condition) setCondition(aiFilters.condition);
+      if (aiFilters.maxPrice) {
+        setPriceRange([aiFilters.minPrice || 0, aiFilters.maxPrice]);
+      }
+    }
+  }, [aiFilters]);
 
   // Auto-submit khi bất kỳ filter nào thay đổi
   useEffect(() => {
@@ -70,22 +94,38 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
   };
 
   return (
-    <div className={styles.filterBar}>
-      <div className={styles.filterHeader}>
-        <Filter size={20} className={styles.headerIcon} />
-        <h3>Bộ lọc chi tiết</h3>
-        <button type="button" onClick={handleReset} className={styles.resetBtn} title="Xóa tất cả bộ lọc">
-          <RotateCcw size={16} />
-        </button>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      <div 
+        className={`${styles.mobileOverlay} ${isOpenMobile ? styles.open : ''}`} 
+        onClick={onCloseMobile}
+      />
+      
+      <div className={`${styles.filterBar} ${isOpenMobile ? styles.mobileOpen : ''}`}>
+        <div className={styles.filterHeader}>
+          <div className={styles.headerTitleRow}>
+            <Filter size={20} className={styles.headerIcon} />
+            <h3>Bộ lọc chi tiết</h3>
+          </div>
+          <div className={styles.headerActions}>
+            <button type="button" onClick={handleReset} className={styles.resetBtn} title="Xóa tất cả bộ lọc">
+              <RotateCcw size={16} />
+            </button>
+            {onCloseMobile && (
+              <button type="button" onClick={onCloseMobile} className={styles.closeBtn}>
+                <X size={20} />
+              </button>
+            )}
+          </div>
+        </div>
 
-      <div className={styles.filterBody}>
-        {/* Loại sản phẩm - Dùng keyword thay vì UUID */}
+        <div className={styles.filterBody}>
+          {/* Loại sản phẩm - Dùng keyword thay vì UUID */}
         <div className={styles.filterGroup}>
           <label className={styles.filterLabel}>
             <Box size={14} /> Loại sản phẩm
           </label>
-          <select 
+          <select
             className={styles.selectField}
             value={productType}
             onChange={(e) => setProductType(e.target.value)}
@@ -120,14 +160,15 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
             <label className={styles.filterLabel}>
               <Tag size={14} /> Loại giao dịch
             </label>
-            <select 
+            <select
               className={styles.selectField}
               value={transactionMethod}
               onChange={(e) => setTransactionMethod(e.target.value)}
             >
               <option value="">Tất cả</option>
-              <option value="ban">Bán</option>
-              <option value="mua">Cần mua</option>
+              <option value="cod">Ship COD</option>
+              <option value="gdtt">Giao dịch trực tiếp</option>
+              <option value="trade">Trade (Giao lưu)</option>
             </select>
           </div>
 
@@ -135,7 +176,7 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
             <label className={styles.filterLabel}>
               <Activity size={14} /> Thương hiệu
             </label>
-            <select 
+            <select
               className={styles.selectField}
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
@@ -156,7 +197,7 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
           <label className={styles.filterLabel}>
             <Clock size={14} /> Thời gian đăng
           </label>
-          <select 
+          <select
             className={styles.selectField}
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
@@ -174,7 +215,7 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
           <label className={styles.filterLabel}>
             <Box size={14} /> Tình trạng
           </label>
-          <select 
+          <select
             className={styles.selectField}
             value={condition}
             onChange={(e) => setCondition(e.target.value)}
@@ -192,10 +233,10 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
             <DollarSign size={14} /> Khoảng giá
           </label>
           <div className={styles.priceSliderWrapper}>
-            <input 
-              type="range" 
-              min="0" 
-              max="10000000" 
+            <input
+              type="range"
+              min="0"
+              max="10000000"
               step="100000"
               value={priceRange[1]}
               onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
@@ -208,8 +249,8 @@ export default function FilterBar({ onSearch, categories = [], brands = [] }: Fi
             </div>
           </div>
         </div>
-
       </div>
     </div>
+    </>
   );
 }

@@ -151,15 +151,79 @@
 }
 
 .statusActive {
-  background-color: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.1);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .statusInactive {
-  background-color: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.toggleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggleBtn {
+  position: relative;
+  display: inline-flex;
+  height: 24px;
+  width: 44px;
+  align-items: center;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggleBtn.active {
+  background-color: #10b981;
+}
+
+.toggleBtn.inactive {
+  background-color: #4b5563;
+}
+
+.toggleBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleCircle {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.2s ease;
+}
+
+.toggleBtn.active .toggleCircle {
+  transform: translateX(24px);
+}
+
+.toggleBtn.inactive .toggleCircle {
+  transform: translateX(4px);
+}
+
+.globalToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(55, 65, 81, 0.5);
+}
+
+.globalToggleLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #d1d5db;
 }
 
 /* Modal Styles */

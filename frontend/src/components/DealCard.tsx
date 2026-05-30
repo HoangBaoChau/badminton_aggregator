@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './DealCard.module.css';
-import { ExternalLink, MapPin, User, Clock, Heart, Share2 } from 'lucide-react';
+import { ExternalLink, MapPin, User, Clock, Heart } from 'lucide-react';
+import ShareMenu from './ShareMenu';
 
 export interface Deal {
   id: string;
@@ -29,6 +30,7 @@ interface DealCardProps {
 
 export default function DealCard({ deal, isFavorited = false, onToggleFavorite }: DealCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const formatMoney = (amount: number) => {
     if (amount === 0 || !amount) return "Liên hệ";
@@ -64,8 +66,13 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
   return (
     <div className={`glass-panel animate-fade-in ${styles.card}`}>
       <div className={styles.imageSection}>
-        {deal.thumbnailUrl ? (
-          <img src={deal.thumbnailUrl} alt={deal.productName} className={styles.image} />
+        {deal.thumbnailUrl && !imgError ? (
+          <img 
+            src={deal.thumbnailUrl} 
+            alt={deal.productName} 
+            className={styles.image} 
+            onError={() => setImgError(true)}
+          />
         ) : (
           <div className={styles.imagePlaceholder}>
             <span>{deal.sourceName}</span>
@@ -89,9 +96,10 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
             <a href={deal.externalUrl} target="_blank" rel="noopener noreferrer" className={styles.actionBtn} aria-label="Xem trên Facebook">
               <ExternalLink size={16} />
             </a>
-            <button className={styles.actionBtn} aria-label="Chia sẻ">
-              <Share2 size={16} />
-            </button>
+            <ShareMenu 
+              url={deal.externalUrl}
+              title={`[Deal] ${deal.productName} - ${formatMoney(deal.price)}`}
+            />
             <button 
               className={`${styles.actionBtn} ${isFavorited ? styles.favoritedBtn : ''}`}
               onClick={(e) => {

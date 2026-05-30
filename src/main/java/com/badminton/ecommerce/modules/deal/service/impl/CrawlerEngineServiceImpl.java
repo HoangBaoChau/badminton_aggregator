@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.badminton.ecommerce.modules.system.service.SystemConfigService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,22 +36,16 @@ public class CrawlerEngineServiceImpl implements CrawlerEngineService {
     private final DealSourceRepository dealSourceRepository;
     private final CrawlLogRepository crawlLogRepository;
     private final DealRepository dealRepository;
+    private final SystemConfigService systemConfigService;
 
     // Lưu trữ trạng thái tiến trình đang chạy để tránh chạy trùng lặp
     private final ConcurrentHashMap<UUID, Boolean> runningCrawlers = new ConcurrentHashMap<>();
-
-    @Value("${crawler.auto-run:false}")
-    private boolean autoRunEnabled;
 
     @Override
     @Async
     public void triggerManualCrawl(UUID sourceId, Integer overrideScrolls) {
         DealSource source = dealSourceRepository.findById(sourceId)
                 .orElseThrow(() -> new AppException(ErrorCode.DEAL_NOT_FOUND));
-
-        if (!source.isActive()) {
-            throw new IllegalArgumentException("Không thể quét nguồn đang bị vô hiệu hóa.");
-        }
 
         int scrolls = overrideScrolls != null ? overrideScrolls : source.getMaxScrolls();
         executeCrawlerProcess(source, scrolls);
@@ -57,10 +54,6 @@ public class CrawlerEngineServiceImpl implements CrawlerEngineService {
     @Override
     @Scheduled(fixedDelay = 60000) // Chạy mỗi 60 giây kiểm tra
     public void scheduleAutoCrawl() {
-        if (!autoRunEnabled) {
-            return;
-        }
-
         List<DealSource> activeSources = dealSourceRepository.findByActiveTrue();
         Instant now = Instant.now();
 

@@ -44,7 +44,7 @@ public class DealSourceServiceImpl implements DealSourceService {
                 .url(request.getUrl())
                 .crawlFrequencyMinutes(request.getCrawlFrequencyMinutes())
                 .maxScrolls(request.getMaxScrolls() != null ? request.getMaxScrolls() : 5)
-                .active(true)
+                .active(false)
                 .build();
         
         dealSource = dealSourceRepository.save(dealSource);

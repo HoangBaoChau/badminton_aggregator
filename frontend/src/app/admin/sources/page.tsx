@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import useSWR from 'swr';
 import { fetcher, apiClient } from '@/services/api';
 import styles from './AdminSources.module.css';
-import { 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  ExternalLink, 
-  RefreshCw, 
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  ExternalLink,
+  RefreshCw,
   AlertCircle,
   Check,
   X,
@@ -152,6 +152,20 @@ export default function AdminSourcesPage() {
     }
   };
 
+  const handleToggleSourceActive = async (source: any) => {
+    try {
+      await apiClient.put(`/admin/sources/${source.id}`, {
+        active: !source.active
+      });
+      setToastMsg(source.active ? `Đã tắt tự động chạy cho nhóm "${source.name}"` : `Đã bật tự động chạy cho nhóm "${source.name}"`);
+      setTimeout(() => setToastMsg(''), 3000);
+      mutate();
+    } catch (err) {
+      console.error(err);
+      alert('Cập nhật trạng thái nhóm thất bại!');
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -159,10 +173,13 @@ export default function AdminSourcesPage() {
           <h1 className={styles.title}>Nguồn Thu Thập Dữ Liệu</h1>
           <p className={styles.subtitle}>Cấu hình và kiểm soát các hội nhóm, trang web để bot tự động cào tin</p>
         </div>
-        <button onClick={openAddModal} className={styles.addBtn}>
-          <Plus size={18} />
-          <span>Thêm nguồn mới</span>
-        </button>
+        
+        <div className="flex items-center gap-4">
+          <button onClick={openAddModal} className={styles.addBtn}>
+            <Plus size={18} />
+            <span>Thêm nguồn mới</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Table */}
@@ -198,7 +215,7 @@ export default function AdminSourcesPage() {
                   <th>Tần suất cào (phút)</th>
                   <th>Cuộn trang</th>
                   <th>Lần cào cuối</th>
-                  <th>Trạng thái</th>
+                  <th>Trạng thái (Tự động)</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
@@ -211,10 +228,10 @@ export default function AdminSourcesPage() {
                     <td>
                       <code className="bg-slate-800 text-xs px-2 py-1 rounded text-orange-400">
                         {source.type === 'fb_group' ? 'Facebook Group' :
-                         source.type === 'website' ? 'Website' :
-                         source.type === 'shopee' ? 'Shopee' :
-                         source.type === 'lazada' ? 'Lazada' :
-                         source.type === 'vnb' ? 'VNB Shop' : 'Khác'}
+                          source.type === 'website' ? 'Website' :
+                            source.type === 'shopee' ? 'Shopee' :
+                              source.type === 'lazada' ? 'Lazada' :
+                                source.type === 'vnb' ? 'VNB Shop' : 'Khác'}
                       </code>
                     </td>
                     <td>
@@ -227,21 +244,23 @@ export default function AdminSourcesPage() {
                     <td>{source.maxScrolls || 5} lần</td>
                     <td>
                       <span className="text-gray-500 text-xs">
-                        {source.lastCrawledAt 
-                          ? new Date(source.lastCrawledAt).toLocaleString('vi-VN') 
+                        {source.lastCrawledAt
+                          ? new Date(source.lastCrawledAt).toLocaleString('vi-VN')
                           : 'Chưa thực hiện'}
                       </span>
                     </td>
                     <td>
-                      <span className={`${styles.statusBadge} ${
-                        source.active ? styles.statusActive : styles.statusInactive
-                      }`}>
-                        {source.active ? 'Đang bật' : 'Đang tắt'}
-                      </span>
+                      <button 
+                        onClick={() => handleToggleSourceActive(source)}
+                        className={`${styles.toggleBtn} ${source.active ? styles.active : styles.inactive}`}
+                        title={source.active ? "Tắt tự động chạy" : "Bật tự động chạy"}
+                      >
+                        <span className={styles.toggleCircle} />
+                      </button>
                     </td>
                     <td>
                       <div className={styles.actionsCell}>
-                        {source.active && (
+                        {!source.active && (
                           <button
                             onClick={() => {
                               setCrawlingSource(source);

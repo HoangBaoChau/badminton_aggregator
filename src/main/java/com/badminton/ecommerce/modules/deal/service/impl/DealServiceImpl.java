@@ -164,7 +164,27 @@ public class DealServiceImpl implements DealService {
     }
 
     private Specification<Deal> hasTransactionMethod(String method) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get("transactionMethod")), "%" + method.toLowerCase() + "%");
+        return (root, query, cb) -> {
+            String lowerMethod = method.toLowerCase();
+            if (lowerMethod.equals("cod")) {
+                return cb.or(
+                    cb.like(cb.lower(root.get("transactionMethod")), "%cod%"),
+                    cb.like(cb.lower(root.get("transactionMethod")), "%chuyển phát%")
+                );
+            } else if (lowerMethod.equals("gdtt")) {
+                return cb.or(
+                    cb.like(cb.lower(root.get("transactionMethod")), "%gdtt%"),
+                    cb.like(cb.lower(root.get("transactionMethod")), "%trực tiếp%")
+                );
+            } else if (lowerMethod.equals("trade")) {
+                return cb.or(
+                    cb.like(cb.lower(root.get("transactionMethod")), "%trade%"),
+                    cb.like(cb.lower(root.get("transactionMethod")), "%giao lưu%"),
+                    cb.like(cb.lower(root.get("transactionMethod")), "%đổi%")
+                );
+            }
+            return cb.like(cb.lower(root.get("transactionMethod")), "%" + lowerMethod + "%");
+        };
     }
 
     private Specification<Deal> priceGreaterThanOrEqual(BigDecimal minPrice) {
@@ -193,6 +213,11 @@ public class DealServiceImpl implements DealService {
     @Override
     @Transactional
     public DealResponse updateDealStatus(UUID id, String status) {
+        if (status == null || !java.util.List.of("active", "sold", "expired", "spam", "hidden").contains(status)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Status không hợp lệ!");
+        }
+
         Deal deal = dealRepository.findById(id)
                 .orElseThrow(() -> new com.badminton.ecommerce.core.exception.AppException(
                         com.badminton.ecommerce.core.exception.ErrorCode.DEAL_NOT_FOUND));

@@ -12,6 +12,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SessionExpiredModal from "@/components/SessionExpiredModal";
 
+import { ToastProvider } from "@/contexts/ToastContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,14 +23,16 @@ export default function RootLayout({
     <html lang="vi">
       <body>
         <ThemeProvider>
-          <AuthProvider>
-            <Header />
-            <main className="container" style={{ minHeight: 'calc(100vh - 70px - 200px)' }}>
-              {children}
-            </main>
-            <Footer />
-            <SessionExpiredModal />
-          </AuthProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <Header />
+              <main className="container" style={{ minHeight: 'calc(100vh - 70px - 200px)' }}>
+                {children}
+              </main>
+              <Footer />
+              <SessionExpiredModal />
+            </AuthProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
