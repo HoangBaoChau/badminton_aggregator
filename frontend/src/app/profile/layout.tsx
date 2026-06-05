@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './ProfileLayout.module.css';
-import { User, MapPin, Package, LogOut, Loader2, Heart } from 'lucide-react';
+import { User, MapPin, Package, LogOut, Loader2, Heart, PenSquare } from 'lucide-react';
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, logout } = useAuth();
@@ -33,6 +33,7 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
   const navItems = [
     { name: 'Hồ Sơ Của Tôi', path: '/profile', icon: <User size={20} /> },
     { name: 'Sổ Địa Chỉ', path: '/profile/addresses', icon: <MapPin size={20} /> },
+    { name: 'Bài Đăng Của Tôi', path: '/profile/listings', icon: <PenSquare size={20} /> },
     { name: 'Bài Viết Đã Lưu', path: '/profile/favorites', icon: <Heart size={20} /> },
     { name: 'Đơn Hàng', path: '/profile/orders', icon: <Package size={20} /> }
   ];

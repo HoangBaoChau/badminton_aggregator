@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/deals/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/shops/**").permitAll()
                         .requestMatchers("/api/v1/ai/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

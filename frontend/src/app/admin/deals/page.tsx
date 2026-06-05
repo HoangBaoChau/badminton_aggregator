@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/contexts/ToastContext';
 import useSWR from 'swr';
 import { fetcher, apiClient } from '@/services/api';
 import styles from './AdminDeals.module.css';
@@ -15,6 +17,8 @@ import {
 } from 'lucide-react';
 
 export default function AdminDealsPage() {
+  const { theme } = useTheme();
+  const { showToast } = useToast();
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState('pending'); // default to pending for moderation
   const [search, setSearch] = useState('');
@@ -49,7 +53,7 @@ export default function AdminDealsPage() {
       mutate();
     } catch (err) {
       console.error("Lỗi khi cập nhật trạng thái deal:", err);
-      alert("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
+      showToast("Cập nhật trạng thái thất bại. Vui lòng thử lại!", 'error');
     } finally {
       setIsUpdating(null);
     }

@@ -119,6 +119,37 @@
   position: relative;
 }
 
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shopRadarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.shopRadarBtn:hover {
+  background: var(--border-color);
+  border-color: var(--text-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+}
+
 .headerControls {
   display: flex;
   align-items: center;

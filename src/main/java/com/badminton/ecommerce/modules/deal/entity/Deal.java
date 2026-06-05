@@ -31,7 +31,7 @@ public class Deal extends BaseEntity {
     @Column(name = "external_id")
     private String externalId;
 
-    @Column(name = "external_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "external_url", columnDefinition = "TEXT")
     private String externalUrl;
 
     @Column(name = "product_name")
@@ -85,4 +85,17 @@ public class Deal extends BaseEntity {
 
     @Column(name = "posted_at")
     private Instant postedAt;
+
+    @Column(name = "user_id")
+    private UUID userId;
+
+    @Column(name = "listing_type", length = 20)
+    @Builder.Default
+    private String listingType = "crawled";
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "contact_info", length = 255)
+    private String contactInfo;
 }

@@ -30,6 +30,11 @@ public record DealResponse(
         String aiSummary,     // Tóm tắt ngắn gọn hiển thị ngoài Feed
         List<String> tags,
         
+        String listingType,
+        String description,
+        String contactInfo,
+        UUID userId,
+        
         String status,
         Instant postedAt,
         Instant createdAt

@@ -2,6 +2,7 @@ package com.badminton.ecommerce.modules.deal.controller;
 
 import com.badminton.ecommerce.core.response.ApiResponse;
 import com.badminton.ecommerce.modules.deal.dto.request.CreateDealRequest;
+import com.badminton.ecommerce.modules.deal.dto.request.CreateUserListingRequest;
 import com.badminton.ecommerce.modules.deal.dto.response.DealResponse;
 import com.badminton.ecommerce.modules.deal.service.DealService;
 import jakarta.validation.Valid;
@@ -55,5 +56,41 @@ public class DealController {
     public ResponseEntity<ApiResponse<DealResponse>> createDeal(@Valid @RequestBody CreateDealRequest request) {
         DealResponse response = dealService.createDeal(request);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // --- User Listings Endpoints ---
+
+    @PostMapping("/listings")
+    public ResponseEntity<ApiResponse<DealResponse>> createUserListing(
+            @Valid @RequestBody CreateUserListingRequest request,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.badminton.ecommerce.modules.identity.entity.User user) {
+        DealResponse response = dealService.createUserListing(request, user.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/my-listings")
+    public ResponseEntity<ApiResponse<Page<DealResponse>>> getMyListings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.badminton.ecommerce.modules.identity.entity.User user) {
+        Page<DealResponse> responses = dealService.getUserListings(user.getId(), page, size);
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @PutMapping("/listings/{id}")
+    public ResponseEntity<ApiResponse<DealResponse>> updateUserListing(
+            @PathVariable UUID id,
+            @Valid @RequestBody CreateUserListingRequest request,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.badminton.ecommerce.modules.identity.entity.User user) {
+        DealResponse response = dealService.updateUserListing(id, request, user.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @DeleteMapping("/listings/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteUserListing(
+            @PathVariable UUID id,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.badminton.ecommerce.modules.identity.entity.User user) {
+        dealService.deleteUserListing(id, user.getId());
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

@@ -53,7 +53,27 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 16px;
+}
+
+.createDealBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.createDealBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
 .iconButton {
@@ -421,3 +441,8 @@
   color: var(--danger-color);
   margin-top: 8px;
 }
+
+.navLink { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.navLink.active { color: var(--accent-color); font-weight: 600; }
+.mobileNavLink { display: flex; align-items: center; gap: 12px; padding: 16px 24px; color: var(--text-primary); text-decoration: none; font-size: 1.1rem; font-weight: 500; border-bottom: 1px solid var(--border-color); }
+.mobileNavLink.active { color: var(--accent-color); background-color: rgba(59, 130, 246, 0.05); }

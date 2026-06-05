@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import useSWR from 'swr';
 import { fetcher, apiClient } from '@/services/api';
 import DealCard, { Deal } from '@/components/DealCard';
 import { DealCardSkeleton } from '@/components/Skeleton';
 import FilterBar from '@/components/FilterBar';
-import DealMap from '@/components/DealMap';
 import styles from './Deals.module.css';
-import { Sparkles, Filter, Map as MapIcon, List } from 'lucide-react';
+import { Sparkles, Filter, List, Search, Store } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -23,31 +23,10 @@ export default function DealsPage() {
   });
   const [sortOrder, setSortOrder] = useState('newest');
 
-  const [aiQuery, setAiQuery] = useState('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiFilters, setAiFilters] = useState<any>(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [isMapView, setIsMapView] = useState(false);
 
-  const handleAiSearch = async () => {
-    if (!aiQuery.trim()) return;
-    setIsAiLoading(true);
-    try {
-      const extracted = await apiClient.post('/ai/extract-filters', { query: aiQuery });
-      if (extracted) {
-        setAiFilters(extracted);
-      }
-    } catch (err: any) {
-      if (err.response?.status === 429) {
-        alert("Bạn tra cứu quá nhanh! Vui lòng đợi 1 phút rồi thử lại.");
-      } else {
-        alert("Có lỗi khi phân tích bằng AI. Vui lòng thử lại sau.");
-      }
-    } finally {
-      setIsAiLoading(false);
-      setAiQuery('');
-    }
-  };
+
 
   // Xây dựng URL có query params
   const queryParams = new URLSearchParams({
@@ -56,7 +35,8 @@ export default function DealsPage() {
     status: 'active',
   });
 
-  if (filters.keyword) queryParams.append('keyword', filters.keyword);
+  const combinedKeyword = [searchKeyword, filters.keyword].filter(Boolean).join(' ');
+  if (combinedKeyword) queryParams.append('keyword', combinedKeyword);
   if (filters.categoryId) queryParams.append('categoryId', filters.categoryId);
   if (filters.brandId) queryParams.append('brandId', filters.brandId);
   if (filters.location) queryParams.append('location', filters.location);
@@ -109,33 +89,27 @@ export default function DealsPage() {
         <aside className={styles.sidebar}>
           <FilterBar 
             onSearch={handleSearch} 
-            aiFilters={aiFilters}
+
             isOpenMobile={isMobileFilterOpen}
             onCloseMobile={() => setIsMobileFilterOpen(false)}
           />
         </aside>
 
         <main className={styles.content}>
-          {/* AI Search Bar */}
+          {/* Manual Search Bar */}
           <div className={styles.aiSearchBar}>
             <div className={styles.aiInputWrapper}>
-              <Sparkles size={20} className={styles.aiIcon} />
+              <Search size={20} className={styles.aiIcon} />
               <input 
                 type="text" 
-                placeholder="VD: Cần mua vợt Yonex cũ giá dưới 1 triệu ở Cầu Giấy (nhập Hãng, Tình trạng, Giá, Khu vực...)" 
+                placeholder="Tìm kiếm: Yonex Astrox 99, giày lining..." 
                 className={styles.aiInput}
-                value={aiQuery}
-                onChange={(e) => setAiQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAiSearch()}
-                disabled={isAiLoading}
+                value={searchKeyword}
+                onChange={(e) => {
+                  setSearchKeyword(e.target.value);
+                  setPage(0);
+                }}
               />
-              <button 
-                className={styles.aiSearchBtn}
-                onClick={handleAiSearch}
-                disabled={isAiLoading || !aiQuery.trim()}
-              >
-                {isAiLoading ? 'Đang phân tích...' : 'Tìm'}
-              </button>
             </div>
           </div>
 
@@ -146,25 +120,12 @@ export default function DealsPage() {
               <span>{isLoading ? 'Đang tính toán...' : `${totalElements} kết quả`}</span>
             </div>
 
-            <div className={styles.headerControls}>
-              <div className={styles.viewToggle}>
-                <button 
-                  className={`${styles.viewBtn} ${!isMapView ? styles.active : ''}`}
-                  onClick={() => setIsMapView(false)}
-                  title="Xem dạng danh sách"
-                >
-                  <List size={18} />
-                </button>
-                <button 
-                  className={`${styles.viewBtn} ${isMapView ? styles.active : ''}`}
-                  onClick={() => setIsMapView(true)}
-                  title="Xem trên bản đồ"
-                >
-                  <MapIcon size={18} />
-                </button>
-              </div>
-
-              <div className={styles.sortDropdown}>
+            <div className={styles.actionGroup}>
+              <Link href="/shops" className={styles.shopRadarBtn}>
+                <Store size={16} />
+                <span>Shop Radar</span>
+              </Link>
+              <div className={styles.sortSelectWrapper}>
                 <select 
                   value={sortOrder} 
                   onChange={(e) => setSortOrder(e.target.value)}
@@ -192,21 +153,16 @@ export default function DealsPage() {
             </div>
           )}
 
-          {/* Render Map or List */}
-          {isMapView && !isLoading && deals.length > 0 ? (
-            <DealMap deals={deals} />
-          ) : (
-            <div className={styles.dealList}>
-              {deals.map((deal) => (
-                <DealCard 
-                  key={deal.id} 
-                  deal={deal} 
-                  isFavorited={favoritedIds.has(deal.id)}
-                  onToggleFavorite={handleToggleFavorite}
-                />
-              ))}
-            </div>
-          )}
+          <div className={styles.dealList}>
+            {deals.map((deal) => (
+              <DealCard 
+                key={deal.id} 
+                deal={deal} 
+                isFavorited={favoritedIds.has(deal.id)}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            ))}
+          </div>
 
           {isLoading && (
             <div className={styles.dealList}>

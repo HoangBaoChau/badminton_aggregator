@@ -1,0 +1,68 @@
+.mapContainer {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  z-index: 0; /* Important for leaflet to not overlap header */
+}
+
+/* Fix for Leaflet controls z-index */
+.mapContainer :global(.leaflet-control-container) {
+  z-index: 10;
+}
+
+.loadingContainer {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+:global(.dark) .spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Custom Popup styles */
+:global(.leaflet-popup-content-wrapper) {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+:global(.leaflet-popup-tip) {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+:global(.leaflet-container a.leaflet-popup-close-button) {
+  color: var(--text-secondary);
+}

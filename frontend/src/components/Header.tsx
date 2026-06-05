@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Sun, Moon, LogOut, User, Menu, ChevronDown, Heart, MapPin, X } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Menu, ChevronDown, Heart, MapPin, X, PenSquare } from 'lucide-react';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -38,10 +38,7 @@ export default function Header() {
           🏸 Badminton<span className={styles.logoHighlight}>Deals</span>
         </Link>
         
-        <nav className={styles.nav}>
-          <Link href="/" className={styles.navLink}>Trang Chủ</Link>
-          <Link href="/deals" className={styles.navLink}>Khuyến Mãi</Link>
-        </nav>
+
 
         <div className={styles.actions}>
           <button 
@@ -51,6 +48,13 @@ export default function Header() {
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>
+
+          {isAuthenticated && (
+            <Link href="/deals/create" className={styles.createDealBtn}>
+              <PenSquare size={18} />
+              <span>Đăng tin</span>
+            </Link>
+          )}
           
           <div className={styles.divider}></div>
           
@@ -114,10 +118,7 @@ export default function Header() {
             </button>
           </div>
 
-          <div className={styles.mobileNav}>
-            <Link href="/" className={styles.mobileNavLink}>Trang Chủ</Link>
-            <Link href="/deals" className={styles.mobileNavLink}>Khuyến Mãi</Link>
-          </div>
+
 
           <div className={styles.mobileMenuFooter}>
             <div className={styles.mobileThemeToggle}>
@@ -129,6 +130,9 @@ export default function Header() {
 
             {isAuthenticated && user ? (
               <div className={styles.mobileUserActions}>
+                <Link href="/deals/create" className={styles.mobileActionLink}>
+                  <PenSquare size={18} /> Đăng tin
+                </Link>
                 <div className={styles.mobileUserInfo}>
                   <div className={styles.avatar}>
                     {user.fullName?.charAt(0).toUpperCase() || 'U'}

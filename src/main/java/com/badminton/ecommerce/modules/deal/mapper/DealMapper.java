@@ -1,6 +1,7 @@
 package com.badminton.ecommerce.modules.deal.mapper;
 
 import com.badminton.ecommerce.modules.deal.dto.request.CreateDealRequest;
+import com.badminton.ecommerce.modules.deal.dto.request.CreateUserListingRequest;
 import com.badminton.ecommerce.modules.deal.dto.response.DealResponse;
 import com.badminton.ecommerce.modules.deal.entity.Deal;
 import org.mapstruct.Mapper;
@@ -26,4 +27,22 @@ public interface DealMapper {
     @Mapping(target = "source", ignore = true)
     @Mapping(target = "status", ignore = true)
     void updateEntityFromRequest(CreateDealRequest request, @MappingTarget Deal deal);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "source", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "externalId", ignore = true)
+    @Mapping(target = "externalUrl", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "listingType", ignore = true)
+    Deal toEntity(CreateUserListingRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "source", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "externalId", ignore = true)
+    @Mapping(target = "externalUrl", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "listingType", ignore = true)
+    void updateEntityFromRequest(CreateUserListingRequest request, @MappingTarget Deal deal);
 }

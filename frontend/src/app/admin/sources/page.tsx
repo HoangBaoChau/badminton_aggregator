@@ -14,9 +14,19 @@ import {
   Check,
   X,
   Play,
-  ScrollText
+  ScrollText,
+  Edit,
+  Settings,
+  Search,
+  Filter,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Activity
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/contexts/ToastContext';
+import ConfirmModal from '@/components/ConfirmModal';
 
 interface SourceForm {
   name: string;
@@ -28,6 +38,7 @@ interface SourceForm {
 
 export default function AdminSourcesPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [page, setPage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSource, setEditingSource] = useState<any | null>(null);
@@ -38,14 +49,23 @@ export default function AdminSourcesPage() {
   const [name, setName] = useState('');
   const [type, setType] = useState('fb_group');
   const [url, setUrl] = useState('');
-  const [frequency, setFrequency] = useState(60);
-  const [maxScrolls, setMaxScrolls] = useState(5);
+  const [frequency, setFrequency] = useState<number | string>(60);
+  const [maxScrolls, setMaxScrolls] = useState<number | string>(5);
   const [active, setActive] = useState(true);
 
   // Crawl Trigger State
   const [crawlModalOpen, setCrawlModalOpen] = useState(false);
   const [crawlingSource, setCrawlingSource] = useState<any | null>(null);
-  const [crawlScrolls, setCrawlScrolls] = useState(5);
+  const [crawlScrolls, setCrawlScrolls] = useState<number | string>(5);
+  
+  // Confirm Modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'danger' as 'danger',
+    onConfirm: () => {}
+  });
   const [toastMsg, setToastMsg] = useState('');
 
   // Fetch sources paginated
@@ -128,28 +148,32 @@ export default function AdminSourcesPage() {
     try {
       await apiClient.post(`/admin/sources/${crawlingSource.id}/crawl?maxScrolls=${crawlScrolls}`);
       setCrawlModalOpen(false);
-      setToastMsg(`🚀 Tiến trình Crawler cho "${crawlingSource.name}" đã được khởi chạy ngầm!`);
-      setTimeout(() => setToastMsg(''), 5000);
+      showToast(`🚀 Tiến trình Crawler cho "${crawlingSource.name}" đã được khởi chạy ngầm!`, 'success');
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Lỗi khi kích hoạt crawler!');
+      showToast(err.response?.data?.message || 'Lỗi khi kích hoạt crawler!', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (sourceId: string, sourceName: string) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa nguồn cào "${sourceName}"? Hành động này không thể hoàn tác.`)) {
-      return;
-    }
-
-    try {
-      await apiClient.delete(`/admin/sources/${sourceId}`);
-      mutate();
-    } catch (err) {
-      console.error("Lỗi khi xóa nguồn cào:", err);
-      alert("Xóa nguồn cào thất bại. Vui lòng thử lại!");
-    }
+  const handleDelete = (sourceId: string, sourceName: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Xóa nguồn cào',
+      message: `Bạn có chắc chắn muốn xóa nguồn cào "${sourceName}"? Hành động này không thể hoàn tác.`,
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/admin/sources/${sourceId}`);
+          mutate();
+          showToast('Đã xóa nguồn cào', 'success');
+        } catch (err) {
+          console.error("Lỗi khi xóa nguồn cào:", err);
+          showToast("Xóa nguồn cào thất bại. Vui lòng thử lại!", 'error');
+        }
+      }
+    });
   };
 
   const handleToggleSourceActive = async (source: any) => {
@@ -162,7 +186,7 @@ export default function AdminSourcesPage() {
       mutate();
     } catch (err) {
       console.error(err);
-      alert('Cập nhật trạng thái nhóm thất bại!');
+      showToast('Cập nhật trạng thái nhóm thất bại!', 'error');
     }
   };
 
@@ -393,10 +417,13 @@ export default function AdminSourcesPage() {
                 <label>Tần Suất Cào (phút)</label>
                 <input
                   type="number"
-                  min="5"
+                  min="1"
                   className={styles.input}
                   value={frequency}
-                  onChange={(e) => setFrequency(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFrequency(val === '' ? '' : Number(val));
+                  }}
                 />
               </div>
 
@@ -408,7 +435,10 @@ export default function AdminSourcesPage() {
                   max="100"
                   className={styles.input}
                   value={maxScrolls}
-                  onChange={(e) => setMaxScrolls(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setMaxScrolls(val === '' ? '' : Number(val));
+                  }}
                 />
               </div>
 
@@ -471,7 +501,10 @@ export default function AdminSourcesPage() {
                   max="100"
                   className={styles.input}
                   value={crawlScrolls}
-                  onChange={(e) => setCrawlScrolls(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCrawlScrolls(val === '' ? '' : Number(val));
+                  }}
                 />
               </div>
               <div className={styles.modalActions}>
@@ -509,6 +542,15 @@ export default function AdminSourcesPage() {
           <span className={styles.toastText}>{toastMsg}</span>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        type={confirmConfig.type}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

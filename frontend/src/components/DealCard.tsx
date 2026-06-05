@@ -20,6 +20,11 @@ export interface Deal {
   status: string;
   postedAt?: string | null;
   createdAt?: string | null;
+  
+  listingType?: string;
+  description?: string;
+  contactInfo?: string;
+  userId?: string;
 }
 
 interface DealCardProps {
@@ -62,6 +67,7 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
 
   const conditionLabel = deal.condition ? (conditionMap[deal.condition.toLowerCase()] || deal.condition) : 'Đã sử dụng';
   const methodLabel = deal.transactionMethod === 'buy' ? 'Cần mua' : 'Bán';
+  const isUserListing = deal.listingType === 'user_listing';
 
   return (
     <div className={`glass-panel animate-fade-in ${styles.card}`}>
@@ -75,7 +81,7 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
           />
         ) : (
           <div className={styles.imagePlaceholder}>
-            <span>{deal.sourceName}</span>
+            <span>{isUserListing ? 'Ảnh sản phẩm' : deal.sourceName}</span>
           </div>
         )}
       </div>
@@ -84,6 +90,12 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
         {/* Header: Badges & Actions */}
         <div className={styles.cardHeader}>
           <div className={styles.badges}>
+            {isUserListing && (
+              <span className={`${styles.badge} ${styles.badgeDirect}`}>Đăng trực tiếp</span>
+            )}
+            {!isUserListing && deal.sourceName && (
+              <span className={`${styles.badge} ${styles.badgeSource}`}>{deal.sourceName}</span>
+            )}
             <span className={`${styles.badge} ${styles.badgeMethod}`}>{methodLabel}</span>
             <span className={`${styles.badge} ${styles.badgeCondition}`}>{conditionLabel}</span>
             {deal.tags && deal.tags.length > 0 && (
@@ -93,11 +105,13 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
             )}
           </div>
           <div className={styles.actions}>
-            <a href={deal.externalUrl} target="_blank" rel="noopener noreferrer" className={styles.actionBtn} aria-label="Xem trên Facebook">
-              <ExternalLink size={16} />
-            </a>
+            {!isUserListing && deal.externalUrl && (
+              <a href={deal.externalUrl} target="_blank" rel="noopener noreferrer" className={styles.actionBtn} aria-label="Xem trên Facebook">
+                <ExternalLink size={16} />
+              </a>
+            )}
             <ShareMenu 
-              url={deal.externalUrl}
+              url={isUserListing ? `${window.location.origin}/deals/${deal.id}` : deal.externalUrl}
               title={`[Deal] ${deal.productName} - ${formatMoney(deal.price)}`}
             />
             <button 
@@ -125,8 +139,15 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
 
         {/* Description */}
         <div className={`${styles.description} ${expanded ? styles.expanded : ''}`}>
-          {deal.aiSummary || "Không có mô tả chi tiết."}
+          {deal.description || deal.aiSummary || "Không có mô tả chi tiết."}
         </div>
+        
+        {/* Contact Info (if user listing and expanded) */}
+        {isUserListing && expanded && deal.contactInfo && (
+          <div className={styles.contactInfoWrapper}>
+            <strong>Liên hệ:</strong> {deal.contactInfo}
+          </div>
+        )}
 
         {/* Footer */}
         <div className={styles.footer}>
@@ -149,7 +170,10 @@ export default function DealCard({ deal, isFavorited = false, onToggleFavorite }
           
           <button 
             className={styles.readMoreBtn} 
-            onClick={() => setExpanded(!expanded)}
+            onClick={(e) => {
+              e.preventDefault();
+              setExpanded(!expanded);
+            }}
           >
             {expanded ? 'Thu gọn ^' : 'Xem thêm ⌄'}
           </button>

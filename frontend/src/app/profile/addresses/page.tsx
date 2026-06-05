@@ -5,6 +5,7 @@ import { apiClient } from '@/services/api';
 import styles from './Address.module.css';
 import { MapPin, Plus, Star, Edit2, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import AddressFormModal, { AddressData } from '@/components/AddressFormModal';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function AddressPage() {
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -17,6 +18,15 @@ export default function AddressPage() {
   
   // Notice state
   const [notice, setNotice] = useState({ type: '', text: '' });
+
+  // Confirm Modal state
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'danger' as 'danger',
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     fetchAddresses();
@@ -82,16 +92,22 @@ export default function AddressPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này?")) return;
-    
-    try {
-      await apiClient.delete(`/users/me/addresses/${id}`);
-      showNotice('success', 'Đã xóa địa chỉ');
-      fetchAddresses();
-    } catch (err) {
-      showNotice('error', 'Không thể xóa địa chỉ. Thử lại sau.');
-    }
+  const handleDelete = (id: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Xóa địa chỉ',
+      message: 'Bạn có chắc chắn muốn xóa địa chỉ này? Hành động này không thể hoàn tác.',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/users/me/addresses/${id}`);
+          showNotice('success', 'Đã xóa địa chỉ');
+          fetchAddresses();
+        } catch (err) {
+          showNotice('error', 'Không thể xóa địa chỉ. Thử lại sau.');
+        }
+      }
+    });
   };
 
   const handleSetDefault = async (id: string) => {
@@ -188,6 +204,15 @@ export default function AddressPage() {
         onSubmit={handleSubmit}
         initialData={editingAddress}
         isLoading={isSubmitting}
+      />
+
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        type={confirmConfig.type}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
       />
     </div>
   );

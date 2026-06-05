@@ -14,7 +14,7 @@ interface FilterBarProps {
     minPrice?: number;
     maxPrice?: number;
   }) => void;
-  aiFilters?: any;
+
   categories?: { id: string; name: string }[];
   brands?: { id: string; name: string }[];
   isOpenMobile?: boolean;
@@ -23,7 +23,7 @@ interface FilterBarProps {
 
 export default function FilterBar({ 
   onSearch, 
-  aiFilters, 
+
   categories = [], 
   brands = [],
   isOpenMobile = false,
@@ -43,19 +43,7 @@ export default function FilterBar({
     return parts.join(' ');
   }, [productType, brand]);
 
-  // Cập nhật state từ AI
-  useEffect(() => {
-    if (aiFilters) {
-      if (aiFilters.productType) setProductType(aiFilters.productType);
-      if (aiFilters.location) setLocation(aiFilters.location);
-      if (aiFilters.transactionMethod) setTransactionMethod(aiFilters.transactionMethod);
-      if (aiFilters.brand) setBrand(aiFilters.brand);
-      if (aiFilters.condition) setCondition(aiFilters.condition);
-      if (aiFilters.maxPrice) {
-        setPriceRange([aiFilters.minPrice || 0, aiFilters.maxPrice]);
-      }
-    }
-  }, [aiFilters]);
+
 
   // Auto-submit khi bất kỳ filter nào thay đổi
   useEffect(() => {

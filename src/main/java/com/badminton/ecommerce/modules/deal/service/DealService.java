@@ -1,6 +1,7 @@
 package com.badminton.ecommerce.modules.deal.service;
 
 import com.badminton.ecommerce.modules.deal.dto.request.CreateDealRequest;
+import com.badminton.ecommerce.modules.deal.dto.request.CreateUserListingRequest;
 import com.badminton.ecommerce.modules.deal.dto.response.DealResponse;
 import org.springframework.data.domain.Page;
 
@@ -22,4 +23,13 @@ public interface DealService {
 
     // Dành cho Admin đổi trạng thái (ví dụ: đánh dấu spam, ẩn)
     DealResponse updateDealStatus(UUID id, String status);
+
+    // --- User Listings ---
+    DealResponse createUserListing(CreateUserListingRequest request, UUID userId);
+    
+    Page<DealResponse> getUserListings(UUID userId, int page, int size);
+    
+    DealResponse updateUserListing(UUID dealId, CreateUserListingRequest request, UUID userId);
+    
+    void deleteUserListing(UUID dealId, UUID userId);
 }

@@ -83,6 +83,18 @@
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
+.badgeDirect {
+  background: #10b981;
+  color: white;
+  border: 1px solid #059669;
+}
+
+.badgeSource {
+  background: #3b82f6;
+  color: white;
+  border: 1px solid #2563eb;
+}
+
 .badgeCondition {
   background: rgba(16, 185, 129, 0.15);
   color: #10b981; /* Màu xanh lá */

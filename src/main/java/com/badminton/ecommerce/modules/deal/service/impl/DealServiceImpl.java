@@ -1,6 +1,7 @@
 package com.badminton.ecommerce.modules.deal.service.impl;
 
 import com.badminton.ecommerce.modules.deal.dto.request.CreateDealRequest;
+import com.badminton.ecommerce.modules.deal.dto.request.CreateUserListingRequest;
 import com.badminton.ecommerce.modules.deal.dto.response.DealResponse;
 import com.badminton.ecommerce.modules.deal.entity.Deal;
 import com.badminton.ecommerce.modules.deal.entity.DealSource;
@@ -8,6 +9,8 @@ import com.badminton.ecommerce.modules.deal.mapper.DealMapper;
 import com.badminton.ecommerce.modules.deal.repository.DealRepository;
 import com.badminton.ecommerce.modules.deal.repository.DealSourceRepository;
 import com.badminton.ecommerce.modules.deal.service.DealService;
+import com.badminton.ecommerce.modules.identity.entity.User;
+import com.badminton.ecommerce.modules.identity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +33,7 @@ public class DealServiceImpl implements DealService {
 
     private final DealRepository dealRepository;
     private final DealSourceRepository dealSourceRepository;
+    private final UserRepository userRepository;
     private final DealMapper dealMapper;
 
     @Override
@@ -225,5 +229,66 @@ public class DealServiceImpl implements DealService {
         deal.setStatus(status);
         deal = dealRepository.save(deal);
         return dealMapper.toResponse(deal);
+    }
+
+    // --- User Listings ---
+
+    @Override
+    @Transactional
+    public DealResponse createUserListing(CreateUserListingRequest request, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new com.badminton.ecommerce.core.exception.AppException(
+                        com.badminton.ecommerce.core.exception.ErrorCode.USER_NOT_FOUND));
+
+        Deal deal = dealMapper.toEntity(request);
+        deal.setUserId(userId);
+        deal.setSellerName(user.getLastName() + " " + user.getFirstName());
+        deal.setListingType("user_listing");
+        deal.setStatus("active");
+        deal.setPostedAt(Instant.now());
+        // Fix database NOT NULL constraint issue when Flyway is off
+        deal.setExternalUrl(""); 
+        
+        Deal savedDeal = dealRepository.save(deal);
+        return dealMapper.toResponse(savedDeal);
+    }
+
+    @Override
+    public Page<DealResponse> getUserListings(UUID userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Specification<Deal> spec = (root, query, cb) -> cb.equal(root.get("userId"), userId);
+        return dealRepository.findAll(spec, pageable).map(dealMapper::toResponse);
+    }
+
+    @Override
+    @Transactional
+    public DealResponse updateUserListing(UUID dealId, CreateUserListingRequest request, UUID userId) {
+        Deal deal = dealRepository.findById(dealId)
+                .orElseThrow(() -> new com.badminton.ecommerce.core.exception.AppException(
+                        com.badminton.ecommerce.core.exception.ErrorCode.DEAL_NOT_FOUND));
+
+        if (!userId.equals(deal.getUserId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Không có quyền sửa bài đăng này");
+        }
+
+        dealMapper.updateEntityFromRequest(request, deal);
+        Deal updatedDeal = dealRepository.save(deal);
+        return dealMapper.toResponse(updatedDeal);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserListing(UUID dealId, UUID userId) {
+        Deal deal = dealRepository.findById(dealId)
+                .orElseThrow(() -> new com.badminton.ecommerce.core.exception.AppException(
+                        com.badminton.ecommerce.core.exception.ErrorCode.DEAL_NOT_FOUND));
+
+        if (!userId.equals(deal.getUserId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Không có quyền xóa bài đăng này");
+        }
+
+        dealRepository.delete(deal);
     }
 }

@@ -28,7 +28,7 @@ crawler:
 
 ai:
   groq:
-    api-key: your-groq-api-key-here
+    api-key: ${GROQ_API_KEY:your_groq_api_key_here}
 
 app:
   cors:
